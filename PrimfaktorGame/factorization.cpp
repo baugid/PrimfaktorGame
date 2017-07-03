@@ -3,7 +3,7 @@
 #include <time.h>
 #include <algorithm>
 
-Factorization::Factorization(GameDifficulty* d)
+Factorization::Factorization(const GameDifficulty* d)
 {
 	dif = d;
 }

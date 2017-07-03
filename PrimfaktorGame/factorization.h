@@ -3,15 +3,15 @@
 class Factorization
 {
 private:
-	long* primes;
-	long solution;
+	unsigned long* primes;
+	unsigned long solution;
 public:
-	explicit Factorization(const GameDifficulty *d);
+	explicit Factorization(GameDifficulty *d);
 	~Factorization();
 	GameDifficulty* dif;
-	long primesLength;
-	long genTask();
-	bool checkFactorization(const long* p, int length);
-	const long* getPrimes();
+	unsigned long primesLength;
+	unsigned long genTask();
+	bool checkFactorization(const unsigned long* p, unsigned long length) const;
+	const unsigned long* getPrimes() const;
 };
 

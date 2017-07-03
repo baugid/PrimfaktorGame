@@ -3,8 +3,10 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <iostream>
+#include <string>
 //Fileformat : 4Bytes MaxPrime 4Bytes MaxNumbers
-bool GameDifficulty::checkPrime(const long p)
+bool GameDifficulty::checkPrime(const unsigned long p)
 {
 	if (p == 2 || p == 3|| p==5) {
 		return true;
@@ -12,8 +14,8 @@ bool GameDifficulty::checkPrime(const long p)
 	if (!(p % 2) || !(p % 3) || p <= 1) { //checks p<1 or divided by 2/3
 		return false;
 	}
-	long sqrt = sqrtl(p);
-	for (long i = 5; i < sqrt; i += 4) { //tests all numbers n>=5 n=6k+-1 
+	unsigned long sqrt = sqrtl(p);
+	for (unsigned long i = 5; i < sqrt; i += 4) { //tests all numbers n>=5 n=6k+-1 
 		if (!(p%i)) {
 			return false;
 		}
@@ -29,11 +31,11 @@ void GameDifficulty::genAllPrimes()
 {
 	bool divisible1 = false;
 	bool divisible2 = false;
-	std::vector<long> prime;
+	std::vector<unsigned long> prime;
 	prime.push_back(2);
 	prime.push_back(3);
-	for (long i = 5; i < maxPrime; i += 6) { // check all numbers from 5 to maxPrime if they are prime
-		std::for_each(prime.begin(), prime.end(), [&](long t)->void { // if i or i+2 divisible by one of prime flag that
+	for (unsigned long i = 5; i < maxPrime; i += 6) { // check all numbers from 5 to maxPrime if they are prime
+		std::for_each(prime.begin(), prime.end(), [&](unsigned long t)->void { // if i or i+2 divisible by one of prime flag that
 			if (!(i%t)) { divisible1 = true; }
 			if (!((i + 2) % t)) { divisible2 = true; }
 		});
@@ -56,18 +58,14 @@ void GameDifficulty::genAllPrimes()
 	prime.push_back(maxPrime);
 	delete[] primes;								// puts the primes in an array
 	amountOfPrimes = prime.size();
-	primes = new long[amountOfPrimes];
-	for (long i = 0; i < amountOfPrimes; i++) {
+	primes = new unsigned long[amountOfPrimes];
+	for (unsigned long i = 0; i < amountOfPrimes; i++) {
 		primes[i] = prime.at(i);
 	}
 }
 
-GameDifficulty::GameDifficulty() // gens basic difficulty;
+GameDifficulty::GameDifficulty(): GameDifficulty("GameSave.bin") //default File
 {
-	saveFile = "GameSave.bin";
-	maxNumbers = 3;
-	maxPrime = 7;
-	genAllPrimes();
 }
 
 GameDifficulty::~GameDifficulty() //default destructor
@@ -76,7 +74,7 @@ GameDifficulty::~GameDifficulty() //default destructor
 	delete[] primes;
 }
 
-GameDifficulty::GameDifficulty(long maxP, long maxN) : maxPrime(maxP), maxNumbers(maxN) // Difficulty based on params min is base difficulty 
+GameDifficulty::GameDifficulty(unsigned long maxP, unsigned long maxN) : maxPrime(maxP), maxNumbers(maxN) // Difficulty based on params min is base difficulty 
 {
 	saveFile = "GameSave.bin";
 	if (!checkPrime(maxPrime)) {
@@ -93,53 +91,56 @@ GameDifficulty::GameDifficulty(const char * filename) //create based on file
 	if (filename == nullptr) {
 		saveFile = "GameSave.bin";
 	}
-	saveFile = filename;
+	else {
+		saveFile = filename;
+	}
 	std::ifstream in;
-	char* buffer = new char[sizeof(long)];
+	longchar buffer;
 	bool saveCorrected = false;
 	in.open(saveFile, std::ios::in | std::ios::binary);
-	if (!in) {
+	if (!in) {//default vals
 		maxPrime = 7;
 		maxNumbers = 3;
 	}
-	if (in.eof()) {	//if file is empty use and save defaults
-		maxPrime = 7;
-		maxNumbers = 3;
-		genAllPrimes();
-		in.close();
-		saveCorrected = true;
-	}
-	else { //load file and check if those values are correct
-		in.read(buffer, sizeof(long));
-		maxPrime = std::atol(buffer);
-		in.read(buffer, sizeof(long));
-		maxNumbers = std::atol(buffer);
-		in.close();
-		if (!checkPrime(maxPrime)) {
+	else {
+		if (in.eof()) {	//if file is empty use and save defaults
 			maxPrime = 7;
+			maxNumbers = 3;
+			genAllPrimes();
+			in.close();
 			saveCorrected = true;
 		}
-		if (maxNumbers < 3) {
-			maxNumbers = 3;
-			saveCorrected = true;;
+		else { //load file and check if those values are correct
+			in.read(&buffer.chars[0], sizeof(unsigned long)); //TODO: Improve conversion (no undefined behavior)
+			maxPrime = buffer.out;
+			in.read(&buffer.chars[0], sizeof(unsigned long));
+			maxNumbers= buffer.out;
+			in.close();
+			if (!checkPrime(maxPrime)) {
+				maxPrime = 7;
+				saveCorrected = true;
+			}
+			if (maxNumbers < 3) {
+				maxNumbers = 3;
+				saveCorrected = true;;
+			}
 		}
 	}
-	genAllPrimes();
-	if (saveCorrected) {
-		saveState(saveFile);
-	}
-	delete[] buffer;
+		genAllPrimes();
+		if (saveCorrected) {
+			saveState(saveFile);
+		}
 }
 
 
 
 
-long GameDifficulty::getMaxPrime()
+unsigned long GameDifficulty::getMaxPrime() const
 {
 	return maxPrime;
 }
 
-bool GameDifficulty::setMaxPrime(long p) //sets maxPrime checks if it´s a prime number
+bool GameDifficulty::setMaxPrime(unsigned long p) //sets maxPrime checks if it´s a prime number
 {
 	if (checkPrime(p)) {
 		maxPrime = p;
@@ -150,7 +151,7 @@ bool GameDifficulty::setMaxPrime(long p) //sets maxPrime checks if it´s a prime 
 	return false;
 }
 
-void GameDifficulty::setMaxNumbers(long n)
+void GameDifficulty::setMaxNumbers(unsigned long n)
 {
 	if (n >= 3) {
 		maxNumbers = n;
@@ -158,28 +159,28 @@ void GameDifficulty::setMaxNumbers(long n)
 	}
 }
 
-long GameDifficulty::getMaxNumbers()
+unsigned long GameDifficulty::getMaxNumbers() const
 {
 	return maxNumbers;
 }
 
-const long* GameDifficulty::getAllPrimes()
+const unsigned long* GameDifficulty::getAllPrimes() const
 {
 	return primes;
 }
 
-long GameDifficulty::getAmountOfPrimes()
+unsigned long GameDifficulty::getAmountOfPrimes() const
 {
 	return amountOfPrimes;
 }
 
-void GameDifficulty::saveState(const char * filename)
+void GameDifficulty::saveState(const char * filename) const
 {
 	std::ofstream out;
 	out.open(filename, std::ios::out | std::ios::binary);
 	if (out) {
-		out.write((char*)&maxPrime, sizeof(long)); // save maxPrime
-		out.write((char*)&maxNumbers, sizeof(long)); // save maxNumbers
+		out.write((char*)&maxPrime, sizeof(unsigned long)); // save maxPrime
+		out.write((char*)&maxNumbers, sizeof(unsigned long)); // save maxNumbers
 	}
 	out.close();
 }
@@ -192,7 +193,7 @@ void GameDifficulty::setSaveFile(const char * filename)
 
 void GameDifficulty::increaseMaxPrime() // update maxPrime
 {
-	long newPrime = maxPrime + 2;
+	unsigned long newPrime = maxPrime + 2;
 	while (!checkPrime(newPrime)) {
 		newPrime += 2;
 	}

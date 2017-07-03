@@ -3,9 +3,9 @@
 #include <time.h>
 #include <algorithm>
 
-Factorization::Factorization(const GameDifficulty* d)
+Factorization::Factorization(GameDifficulty* d)
 {
-	dif = const_cast<GameDifficulty*>(d);
+	dif = d;
 }
 
 Factorization::~Factorization()
@@ -13,38 +13,38 @@ Factorization::~Factorization()
 	delete[] primes;
 }
 
-long Factorization::genTask()
+unsigned long Factorization::genTask()
 {
 	srand(time(NULL));
-	long product = 1;
+	unsigned long product = 1;
 	primesLength = (rand() % dif->getMaxNumbers()) + 1; //calc length of the array
 	delete[] primes;
-	primes = new long[primesLength];
-	for (long i = 0; i < primesLength; i++) { //calc primes
+	primes = new unsigned long[primesLength];
+	for (unsigned long i = 0; i < primesLength; i++) { //calc primes
 		primes[i] = dif->getAllPrimes()[rand() % dif->getAmountOfPrimes()];
 	}
-	for (long i = 0; i < primesLength; i++) { 
+	for (unsigned long i = 0; i < primesLength; i++) {
 		product *= primes[i];
 	}
 	solution = product;
 	return product;
 }
 
-bool Factorization::checkFactorization(const long * p, int length)
+bool Factorization::checkFactorization(const unsigned long * p, unsigned long length) const
 {
 	if (length != primesLength) // check lengths
 		return false;
-	long product=1;	//check products
-	for (long i = 0; i < primesLength; i++) {
+	unsigned long product=1;	//check products
+	for (unsigned long i = 0; i < primesLength; i++) {
 		product *= primes[i];
 	}
 	if (product != solution) {
 		return false;
 	}
 	bool isPrime;
-	for (long i = 0; i < primesLength; i++) { //check if numbers are prime
+	for (unsigned long i = 0; i < primesLength; i++) { //check if numbers are prime
 		isPrime = false;
-		std::for_each(dif->getAllPrimes(), &dif->getAllPrimes()[dif->getAmountOfPrimes()], [&](long prime)->void { 
+		std::for_each(dif->getAllPrimes(), &dif->getAllPrimes()[dif->getAmountOfPrimes()], [&](unsigned long prime)->void {
 			if (prime == p[i]) { isPrime = true;}
 		});
 		if (isPrime == false) {
@@ -54,7 +54,7 @@ bool Factorization::checkFactorization(const long * p, int length)
 	return true;
 }
 
-const long * Factorization::getPrimes()
+const unsigned long * Factorization::getPrimes() const
 {
 	return primes;
 }

@@ -3,7 +3,6 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
-#include <iostream>
 #include <string>
 //Fileformat : 4Bytes MaxPrime 4Bytes MaxNumbers
 bool GameDifficulty::checkPrime(const unsigned long p)

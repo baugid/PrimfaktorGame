@@ -1,6 +1,5 @@
 #include <iostream>
 #include "Game.h"
-#include "GameDifficulty.h"
 
 int main() {
 	Game g;

@@ -98,9 +98,10 @@ GameDifficulty::GameDifficulty(const char * filename) //create based on file
 	longchar buffer;
 	bool saveCorrected = false;
 	in.open(saveFile, std::ios::in | std::ios::binary);
-	if (!in) {//default vals
+	if (!in.is_open()) {//default vals
 		maxPrime = 7;
 		maxNumbers = 3;
+		saveCorrected = true;
 	}
 	else {
 		if (in.eof()) {	//if file is empty use and save defaults

@@ -95,7 +95,6 @@ GameDifficulty::GameDifficulty(const char * filename) //create based on file
 		saveFile = filename;
 	}
 	std::ifstream in;
-	longchar buffer;
 	bool saveCorrected = false;
 	in.open(saveFile, std::ios::in | std::ios::binary);
 	if (!in.is_open()) {//default vals
@@ -112,10 +111,8 @@ GameDifficulty::GameDifficulty(const char * filename) //create based on file
 			saveCorrected = true;
 		}
 		else { //load file and check if those values are correct
-			in.read(&buffer.chars[0], sizeof(unsigned long)); //TODO: Improve conversion (no undefined behavior)
-			maxPrime = buffer.out;
-			in.read(&buffer.chars[0], sizeof(unsigned long));
-			maxNumbers= buffer.out;
+			in.read((char*)&maxPrime, sizeof(unsigned long));
+			in.read((char*)&maxNumbers, sizeof(unsigned long));
 			in.close();
 			if (!checkPrime(maxPrime)) {
 				maxPrime = 7;

@@ -9,10 +9,6 @@ private:
 	const char* saveFile;
 	unsigned long amountOfPrimes;
 	void genAllPrimes();
-	union longchar {
-		char chars[sizeof(unsigned long)];
-		unsigned long out;
-	};
 public:
 	explicit GameDifficulty();
 	~GameDifficulty();
